@@ -1,15 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 function ContactUs() {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [comments, setComments] = useState("");
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [phoneType, setPhoneType] = useState('');
+    const [comments, setComments] = useState('');
+    const [validationErrors, setValidationErrors] = useState({});
+    const [hasSubmitted, setHasSubmitted] = useState(false);
+    useEffect(() => {
+        const errors = {};
+        if(!name.length) errors['name'] = 'Please enter your Name';
+        if (!email.includes('@')) errors['email']='Please provide a valid Email';
+        setValidationErrors(errors);
+    },[ name, email])
 
     const onSubmit = e => {
         e.preventDefault();
+
+        setHasSubmitted(true);
+        if(Object.values(validationErrors).length)
+            return alert(`The following errors were found:
+            ${validationErrors.name ? "* " + validationErrors.name : ""}
+            ${validationErrors.email ? "* " + validationErrors.email : ""}`);
 
         const contactUsInformation = {
             name,
@@ -27,6 +41,8 @@ function ContactUs() {
         setPhone("");
         setComments("");
         setPhoneType("");
+        setValidationErrors("");
+        setHasSubmitted(false);
     }
     return (
       <div>
@@ -39,12 +55,18 @@ function ContactUs() {
                    onChange={e => setName(e.target.value)}
                    value={name}/>
           </div>
+          <div className='error'>
+            {hasSubmitted && validationErrors.name && `* ${validationErrors.name}`}
+          </div>
           <div>
             <label htmlFor='email'>Email:</label>
             <input id='email'
                    type='text'
                    onChange={e => setEmail(e.target.value)}
                    value={email}/>
+          </div>
+          <div className='error'>
+            {hasSubmitted && validationErrors.email && `* ${validationErrors.email}`}
           </div>
           <div>
             <label htmlFor='phone'>Phone:</label>
